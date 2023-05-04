@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example Store</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #F2F2F2;
+        padding: 40px;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin-top: 50px;
+        color: #333;
+      }
+
+      #products {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .product {
+        width: 30%;
+        background-color: #fff;
+        box-shadow: 0px 0px 10px #ccc;
+        padding: 40px;
+        margin: 50px;
+        text-align: left;
+      }
+
+      .product h2 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .product p {
+        font-size: 18px;
+        color: #333;
+        margin: 20px 0;
+      }
+
+      button {
+        background-color: #333;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      hr {
+        margin: 50px 0;
+        border: none;
+        border-bottom: 1px solid #ccc;
+      }
+
+      #cart {
+        background-color: #fff;
+        box-shadow: 0px 0px 10px #ccc;
+        width: 60%;
+        margin: 50px auto;
+        padding: 40px;
+        text-align: left;
+      }
+
+      #cart div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      #cart strong {
+        font-size: 24px;
+      }
+
+      #cart span {
+        font-size: 18px;
+        color: #333;
+      }
+
+    </style>
+  </head>
+  <body>
+    <h1>Welcome to Example Store</h1>
+    <div id="products">
+      <div class="product">
+        <h2>Product 1</h2>
+        <p>Description of Product 1</p>
+        <p>Price: $10.00</p>
+        <button onclick="addToCart('Product 1', 10, 1)">Add to Cart</button>
+      </div>
+      <div class="product">
+        <h2>Product 2</h2>
+        <p>Description of Product 2</p>
+        <p>Price: $15.00</p>
+        <button onclick="addToCart('Product 2', 15, 4)">Add to Cart</button>
+      </div>
+      <div class="product">
+        <h2>Product 3</h2>
+        <p>Description of Product 3</p>
+        <p>Price: $20.00</p>
+        <button onclick="addToCart('Product 3', 20, 2)">Add to Cart</button>
+      </div>
+    </div>
+    <hr>
+    <h2>Cart</h2>
+    <div id="cart"></div>
+    <button onclick="checkout()">Checkout</button>
+    <script>
+      let cart = [];
+
+      function addToCart(name, price, weight) {
+        let item = cart.find((item) => item.name === name);
+
+        if (item) {
+          item.quantity++;
+        } else {
+          item = { name, price, quantity: 1, weight };
+          cart.push(item);
+        }
+
+        renderCart();
+      }
+
+      function renderCart() {
+        const cartContainer = document.getElementById("cart");
+        cartContainer.innerHTML = "";
+
+        let total = 0;
+        for (let i = 0; i < cart.length; i++) {
+          const item = cart[i];
+          const itemTotal = item.price * item.quantity;
+          cartContainer.innerHTML += `
+            <div>
+              <span>${item.name} x ${item.quantity}</span>
+              <span>$${itemTotal.toFixed(2)}</span>
+            </div>
+          `;
+          total += itemTotal;
+        }
+
+        cartContainer.innerHTML += `
+          <div>
+            <strong>Total:</strong>
+            <span>$${total.toFixed(2)}</span>
+          </div>
+        `;
+      }
+
+      async function checkout() {
+        const response = await fetch("/api/createCheckout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(cart),
+        });
+
+        if (response.ok) {
+          const { redirect } = await response.json();
+          console.log(redirect);
+          window.location.href = redirect;
+        } else {
+          console.error("Failed to checkout:", response.status);
+        }
+      }
+    </script>
+  </body>
+</html>
