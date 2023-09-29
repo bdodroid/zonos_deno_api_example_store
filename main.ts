@@ -2,7 +2,7 @@ import { Application, Router, send } from "https://deno.land/x/oak/mod.ts";
 import {
   createCheckout, 
   importOrder 
-} from "./functions.js";
+} from "./functions.ts";
 
 const app = new Application();
 const router = new Router();
